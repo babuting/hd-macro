@@ -4,75 +4,52 @@ import './App.css';
 
 function App() {
   const [data, setData] = useState(null);
+  const [activeMenu, setActiveMenu] = useState('Home');
 
   useEffect(() => {
     invoke('getText', { example: 'my-invoke-variable' }).then(setData);
   }, []);
 
-  const recentNotices = [
-    {
-      space: 'COMMONGUIDE',
-      summary: '(2025.05.19) Bi Weekly Report of ICT',
-      updated: '2025-05-19',
-      creator: '김동진 책임매니저 IT정책지원팀'
-    },
-    {
-      space: 'COMMONGUIDE', 
-      summary: '(2025.05.04) Bi Weekly Report of ICT',
-      updated: '2025-05-02',
-      creator: '차협성 팀장 IT정책지원팀'
-    },
-    {
-      space: 'COMMONGUIDE',
-      summary: '미래차전력협의회 운영방안 공지',
-      updated: '2025-04-29', 
-      creator: '김동진 책임매니저 IT정책지원팀'
-    },
-    {
-      space: 'COMMONGUIDE',
-      summary: 'Global IT Forum 2025',
-      updated: '2025-04-10',
-      creator: '차협성 팀장 IT정책지원팀'
-    },
-    {
-      space: 'COMMONGUIDE',
-      summary: '25년 UML 교육 후기',
-      updated: '2025-04-03',
-      creator: '김동진 책임매니저 IT정책지원팀'
-    }
-  ];
+  const handleMenuClick = (menuItem) => {
+    setActiveMenu(menuItem);
+  };
 
-  return (
-    <div className="hmg-index">
-      {/* Header */}
-      <header className="header">
-        <div className="header-content">
-          <div className="header-left">
-            <h1 className="main-title">HMG Index</h1>
-            <p className="sub-title">HYUNDAI MOTOR GROUP</p>
-          </div>
-          <div className="header-right">
-            <span className="language-selector">
-              <span className="active">KR</span> | <span>EN</span>
-            </span>
-          </div>
-        </div>
-      </header>
+  const renderHomeContent = () => {
+    const recentNotices = [
+      {
+        space: 'COMMONGUIDE',
+        summary: '(2025.05.19) Bi Weekly Report of ICT',
+        updated: '2025-05-19',
+        creator: '김동진 책임매니저 IT정책지원팀'
+      },
+      {
+        space: 'COMMONGUIDE', 
+        summary: '(2025.05.04) Bi Weekly Report of ICT',
+        updated: '2025-05-02',
+        creator: '차협성 팀장 IT정책지원팀'
+      },
+      {
+        space: 'COMMONGUIDE',
+        summary: '미래차전력협의회 운영방안 공지',
+        updated: '2025-04-29', 
+        creator: '김동진 책임매니저 IT정책지원팀'
+      },
+      {
+        space: 'COMMONGUIDE',
+        summary: 'Global IT Forum 2025',
+        updated: '2025-04-10',
+        creator: '차협성 팀장 IT정책지원팀'
+      },
+      {
+        space: 'COMMONGUIDE',
+        summary: '25년 UML 교육 후기',
+        updated: '2025-04-03',
+        creator: '김동진 책임매니저 IT정책지원팀'
+      }
+    ];
 
-      {/* Navigation */}
-      <nav className="navigation">
-        <ul className="nav-list">
-          <li className="nav-item active">Home</li>
-          <li className="nav-item">Organization</li>
-          <li className="nav-item">Projects</li>
-          <li className="nav-item">Notice</li>
-          <li className="nav-item">Service Request</li>
-          <li className="nav-item">Help Center</li>
-        </ul>
-      </nav>
-
-      {/* Main Content */}
-      <main className="main-content">
+    return (
+      <>
         {/* Welcome Section */}
         <section className="welcome-section">
           <h2>Welcome to HMG Index</h2>
@@ -142,6 +119,141 @@ function App() {
             <p>지식 관리 시스템</p>
           </div>
         </section>
+      </>
+    );
+  };
+
+  const renderOrganizationContent = () => {
+    return (
+      <section className="page-content">
+        <div className="page-header">
+          <h2>Organization</h2>
+          <p>조직 구조 및 부서 정보를 확인할 수 있습니다.</p>
+        </div>
+        <div className="empty-content">
+          <div className="empty-icon">🏢</div>
+          <p>Organization 페이지 준비 중입니다.</p>
+        </div>
+      </section>
+    );
+  };
+
+  const renderProjectsContent = () => {
+    return (
+      <section className="page-content">
+        <div className="page-header">
+          <h2>Projects</h2>
+          <p>진행 중인 프로젝트와 관련 정보를 관리합니다.</p>
+        </div>
+        <div className="empty-content">
+          <div className="empty-icon">📋</div>
+          <p>Projects 페이지 준비 중입니다.</p>
+        </div>
+      </section>
+    );
+  };
+
+  const renderNoticeContent = () => {
+    return (
+      <section className="page-content">
+        <div className="page-header">
+          <h2>Notice</h2>
+          <p>공지사항 및 중요 안내사항을 확인할 수 있습니다.</p>
+        </div>
+        <div className="empty-content">
+          <div className="empty-icon">📢</div>
+          <p>Notice 페이지 준비 중입니다.</p>
+        </div>
+      </section>
+    );
+  };
+
+  const renderServiceRequestContent = () => {
+    return (
+      <section className="page-content">
+        <div className="page-header">
+          <h2>Service Request</h2>
+          <p>서비스 요청 및 지원을 받을 수 있습니다.</p>
+        </div>
+        <div className="empty-content">
+          <div className="empty-icon">🎫</div>
+          <p>Service Request 페이지 준비 중입니다.</p>
+        </div>
+      </section>
+    );
+  };
+
+  const renderHelpCenterContent = () => {
+    return (
+      <section className="page-content">
+        <div className="page-header">
+          <h2>Help Center</h2>
+          <p>도움말 및 자주 묻는 질문을 확인할 수 있습니다.</p>
+        </div>
+        <div className="empty-content">
+          <div className="empty-icon">❓</div>
+          <p>Help Center 페이지 준비 중입니다.</p>
+        </div>
+      </section>
+    );
+  };
+
+  const renderContent = () => {
+    switch(activeMenu) {
+      case 'Home':
+        return renderHomeContent();
+      case 'Organization':
+        return renderOrganizationContent();
+      case 'Projects':
+        return renderProjectsContent();
+      case 'Notice':
+        return renderNoticeContent();
+      case 'Service Request':
+        return renderServiceRequestContent();
+      case 'Help Center':
+        return renderHelpCenterContent();
+      default:
+        return renderHomeContent();
+    }
+  };
+
+  const menuItems = ['Home', 'Organization', 'Projects', 'Notice', 'Service Request', 'Help Center'];
+
+  return (
+    <div className="hmg-index">
+      {/* Header */}
+      <header className="header">
+        <div className="header-content">
+          <div className="header-left">
+            <h1 className="main-title">HMG Index</h1>
+            <p className="sub-title">HYUNDAI MOTOR GROUP</p>
+          </div>
+          <div className="header-right">
+            <span className="language-selector">
+              <span className="active">KR</span> | <span>EN</span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="navigation">
+        <ul className="nav-list">
+          {menuItems.map((item) => (
+            <li 
+              key={item}
+              className={`nav-item ${activeMenu === item ? 'active' : ''}`}
+              onClick={() => handleMenuClick(item)}
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Main Content */}
+      <main className="main-content">
+        {renderContent()}
       </main>
 
       {/* Footer */}
