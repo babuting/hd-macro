@@ -9,7 +9,7 @@ modules:
   function:
     - key: resolver
       handler: index.handler
-  adminPage:
+  globalSettings:
     - key: hmg-index-admin
       title: HMG Index Settings
       url: /admin
