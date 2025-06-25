@@ -227,6 +227,67 @@ resolver.define('deleteOrganizationItem', async (req) => {
   }
 });
 
+// Service Desk 요청 생성
+resolver.define('createServiceDeskRequest', async (req) => {
+  try {
+    const { title, content } = req.payload;
+    
+    console.log('Creating service desk request:', { title, content });
+    
+    // Service Desk API 요청 본문 구성
+    const requestBody = {
+      serviceDeskId: "33",
+      requestTypeId: "279",
+      requestFieldValues: {
+        summary: title,
+        description: content
+      }
+    };
+
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+    const response = await api.asUser().requestJira(
+      route`/rest/servicedeskapi/request`,
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      }
+    );
+
+    console.log('Service Desk API Response Status:', response.status);
+
+    if (response.status === 201) {
+      const responseData = await response.json();
+      console.log('Success response data:', responseData);
+      return {
+        success: true,
+        issueKey: responseData.issueKey || responseData.issueId,
+        message: '서비스 요청이 성공적으로 생성되었습니다.'
+      };
+    } else {
+      const errorData = await response.text();
+      console.error('Service Desk API Error Response:', errorData);
+      
+      return {
+        success: false,
+        message: `서비스 요청 생성 실패: ${response.status} ${response.statusText}`,
+        details: errorData
+      };
+    }
+
+  } catch (error) {
+    console.error('Error creating service desk request:', error);
+    return {
+      success: false,
+      message: '서비스 요청 생성 중 오류가 발생했습니다: ' + error.message
+    };
+  }
+});
+
 // Global Settings resolver
 resolver.define('globalSettingsResolver', (req) => {
   console.log('Global settings resolver called:', req);

@@ -31,6 +31,10 @@ app:
 permissions:
   scopes:
     - storage:app
+    - read:jira-work
+    - write:jira-work
+    - read:servicedesk-request
+    - write:servicedesk-request
   external:
     images:
       - 'https://www.example.com/*'
