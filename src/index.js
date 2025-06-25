@@ -293,68 +293,110 @@ resolver.define('createServiceDeskRequest', async (req) => {
 resolver.define('searchSpaces', async (req) => {
   try {
     const { query } = req.payload;
-    
     console.log('Searching spaces with query:', query);
+    let allSpaces = [];
+    let cursor = null;
+    let hasMore = true;
+    let iterationCount = 0;
+    const maxIterations = 10; // 최대 10번까지만 반복
+    const seenCursors = new Set(); // 중복 cursor 방지
     
-    let searchUrl = '/rest/api/space';
-    
-    // 검색어가 있으면 필터링 파라미터 추가
-    if (query && query.trim()) {
-      // Confluence API는 spaceKey나 name으로 필터링 가능
-      searchUrl += `?label=${encodeURIComponent(query.trim())}`;
-    }
-    
-    const response = await api.asUser().requestConfluence(
-      route`${searchUrl}`,
-      {
+    while (hasMore && iterationCount < maxIterations) {
+      iterationCount++;
+      console.log(`Iteration ${iterationCount}/${maxIterations}`);
+      
+      const options = {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
+        },
+        query: {
+          limit: 100
         }
+      };
+      
+      // cursor가 있으면 추가
+      if (cursor) {
+        options.query.cursor = cursor;
       }
-    );
-
-    console.log('Confluence API Response Status:', response.status);
-
-    if (response.status === 200) {
+      
+      console.log('Making API request with options:', JSON.stringify(options, null, 2));
+      
+      const response = await api.asUser().requestConfluence(
+        route`/wiki/api/v2/spaces`,
+        options
+      );
+      
+      console.log('Confluence API Response Status:', response.status);
+      
+      if (response.status !== 200) {
+        const errorData = await response.text();
+        console.error('Confluence API Error Response:', errorData);
+        return {
+          success: false,
+          message: `스페이스 검색 실패: ${response.status} ${response.statusText}`,
+          details: errorData
+        };
+      }
+      
       const responseData = await response.json();
-      console.log('Success response data:', responseData);
+      console.log('Response data received:', {
+        resultsCount: responseData.results ? responseData.results.length : 0,
+        hasNext: !!(responseData._links && responseData._links.next),
+        nextLink: responseData._links ? responseData._links.next : null
+      });
       
-      // 검색어가 있으면 클라이언트 사이드에서 추가 필터링
-      let spaces = responseData.results || [];
-      
-      if (query && query.trim()) {
-        const searchTerm = query.trim().toLowerCase();
-        spaces = spaces.filter(space => 
-          space.name.toLowerCase().includes(searchTerm) ||
-          space.key.toLowerCase().includes(searchTerm) ||
-          (space.description && space.description.toLowerCase().includes(searchTerm))
-        );
+      // 결과 추가
+      if (responseData.results) {
+        allSpaces = allSpaces.concat(responseData.results);
       }
       
-      return {
-        success: true,
-        spaces: spaces.map(space => ({
-          id: space.id,
-          key: space.key,
-          name: space.name,
-          description: space.description || '',
-          type: space.type,
-          status: space.status,
-          _links: space._links
-        }))
-      };
-    } else {
-      const errorData = await response.text();
-      console.error('Confluence API Error Response:', errorData);
-      
-      return {
-        success: false,
-        message: `스페이스 검색 실패: ${response.status} ${response.statusText}`,
-        details: errorData
-      };
+      // 다음 페이지 확인
+      if (responseData._links && responseData._links.next) {
+        // next URL에서 cursor 파라미터 추출
+        const nextUrl = new URL(responseData._links.next, 'https://example.com');
+        const newCursor = nextUrl.searchParams.get('cursor');
+        
+        // 중복 cursor 체크
+        if (newCursor && !seenCursors.has(newCursor)) {
+          cursor = newCursor;
+          seenCursors.add(newCursor);
+          hasMore = true;
+          console.log('Next cursor:', cursor);
+        } else {
+          console.log('Duplicate cursor or no cursor found, stopping pagination');
+          hasMore = false;
+        }
+      } else {
+        hasMore = false;
+      }
     }
-
+    
+    if (iterationCount >= maxIterations) {
+      console.log('Reached maximum iterations, stopping pagination');
+    }
+    
+    console.log(`Total spaces collected: ${allSpaces.length}`);
+    
+    // 검색어가 있으면 프론트엔드에서 부분 일치 필터링
+    let spaces = allSpaces;
+    if (query && query.trim()) {
+      const searchTerm = query.trim().toLowerCase();
+      spaces = spaces.filter(space =>
+        (space.name && space.name.toLowerCase().includes(searchTerm)) ||
+        (space.key && space.key.toLowerCase().includes(searchTerm))
+      );
+    }
+    
+    return {
+      success: true,
+      spaces: spaces.map(space => ({
+        id: space.id,
+        key: space.key,
+        name: space.name,
+        _links: space._links
+      }))
+    };
   } catch (error) {
     console.error('Error searching spaces:', error);
     return {
@@ -371,6 +413,83 @@ resolver.define('globalSettingsResolver', (req) => {
     message: 'HMG Index Settings loaded successfully',
     version: '1.1.10'
   };
+});
+
+// 외부 API에서 조직도 데이터 가져오기 (샘플)
+resolver.define('getExternalOrganizationData', async (req) => {
+  try {
+    console.log('Fetching external organization data...');
+    
+    // 샘플 조직도 API 호출 (JSONPlaceholder 사용)
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const users = await response.json();
+    console.log('External API response:', users.length, 'users received');
+    
+    // 조직도 형태로 변환
+    const organizationData = users.slice(0, 10).map((user, index) => ({
+      id: user.id,
+      category: '조직',
+      chonggwal: `(C) ${user.company?.name || 'ICT본부'}`,
+      hyundai: `(H) ${user.name}`,
+      kia: `(K) ${user.email.split('@')[0]}`,
+      group: user.company?.catchPhrase || '42dot'
+    }));
+    
+    return {
+      success: true,
+      data: organizationData,
+      source: 'External API',
+      message: '외부 API에서 조직도 데이터를 성공적으로 가져왔습니다.'
+    };
+    
+  } catch (error) {
+    console.error('Error fetching external organization data:', error);
+    return {
+      success: false,
+      message: '외부 API 호출 중 오류가 발생했습니다: ' + error.message
+    };
+  }
+});
+
+// 공공데이터포털 기업정보 API 호출 예시 (실제 사용 시 API 키 필요)
+resolver.define('getPublicCompanyData', async (req) => {
+  try {
+    const { companyName } = req.payload;
+    console.log('Fetching public company data for:', companyName);
+    
+    // 실제 사용 시: 공공데이터포털 API 키 필요
+    // const apiKey = 'YOUR_API_KEY';
+    // const url = `http://apis.data.go.kr/1160100/service/GetCorpBasicInfoService/getCorpOutline?serviceKey=${apiKey}&corp_code=${corpCode}`;
+    
+    // 샘플 응답 (실제로는 공공데이터 API 호출)
+    const sampleData = {
+      companyName: companyName || '샘플기업',
+      ceo: '홍길동',
+      established: '2020-01-01',
+      employees: 1000,
+      address: '서울시 강남구',
+      business: 'IT 서비스'
+    };
+    
+    return {
+      success: true,
+      data: sampleData,
+      source: 'Public Data Portal',
+      message: '공공데이터에서 기업 정보를 가져왔습니다.'
+    };
+    
+  } catch (error) {
+    console.error('Error fetching public company data:', error);
+    return {
+      success: false,
+      message: '공공데이터 API 호출 중 오류가 발생했습니다: ' + error.message
+    };
+  }
 });
 
 export const handler = resolver.getDefinitions();

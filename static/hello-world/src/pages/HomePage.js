@@ -1,6 +1,6 @@
 import React from 'react';
 
-function HomePage({ onSpaceSearchClick }) {
+function HomePage({ onSpaceSearchClick, onOrganizationTreeClick }) {
   const recentNotices = [
     {
       space: 'COMMONGUIDE',
@@ -56,9 +56,9 @@ function HomePage({ onSpaceSearchClick }) {
           <span className="icon">👥</span>
           공간 관리자 확인
         </button>
-        <button className="action-btn">
-          <span className="icon">📊</span>
-          나의 조치도
+        <button className="action-btn" onClick={onOrganizationTreeClick}>
+          <span className="icon">🌳</span>
+          나의 조직도
         </button>
       </section>
 

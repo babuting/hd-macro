@@ -5,6 +5,7 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import OrganizationPage from './pages/OrganizationPage';
+import OrganizationTreePage from './pages/OrganizationTreePage';
 import ProjectsPage from './pages/ProjectsPage';
 import NoticePage from './pages/NoticePage';
 import ServiceRequestPage from './pages/ServiceRequestPage';
@@ -28,6 +29,10 @@ function App() {
     setActiveMenu('SpaceSearch');
   };
 
+  const handleOrganizationTreeClick = () => {
+    setActiveMenu('OrganizationTree');
+  };
+
   const handleBackToHome = () => {
     setActiveMenu('Home');
   };
@@ -35,9 +40,11 @@ function App() {
   const renderContent = () => {
     switch(activeMenu) {
       case 'Home':
-        return <HomePage onSpaceSearchClick={handleSpaceSearchClick} />;
+        return <HomePage onSpaceSearchClick={handleSpaceSearchClick} onOrganizationTreeClick={handleOrganizationTreeClick} />;
       case 'Organization':
         return <OrganizationPage />;
+      case 'OrganizationTree':
+        return <OrganizationTreePage onBack={handleBackToHome} />;
       case 'Projects':
         return <ProjectsPage />;
       case 'Notice':
@@ -49,7 +56,7 @@ function App() {
       case 'SpaceSearch':
         return <SpaceSearchPage onBack={handleBackToHome} />;
       default:
-        return <HomePage onSpaceSearchClick={handleSpaceSearchClick} />;
+        return <HomePage onSpaceSearchClick={handleSpaceSearchClick} onOrganizationTreeClick={handleOrganizationTreeClick} />;
     }
   };
 

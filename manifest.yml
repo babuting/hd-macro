@@ -45,6 +45,11 @@ permissions:
     - write:servicedesk-request
     - read:confluence-space.summary
     - read:confluence-content.summary
+    - read:space:confluence
   external:
     images:
       - 'https://www.example.com/*'
+    fetch:
+      backend:
+        - 'https://jsonplaceholder.typicode.com/*'
+        - 'https://apis.data.go.kr/*'

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { invoke } from '@forge/bridge';
 
 function SpaceSearchPage({ onBack }) {
@@ -8,21 +8,19 @@ function SpaceSearchPage({ onBack }) {
   const [message, setMessage] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    
+  useEffect(() => {
+    // 최초 진입 시 모든 스페이스 불러오기
+    fetchSpaces('');
+  }, []);
+
+  const fetchSpaces = async (query) => {
     setLoading(true);
     setMessage('');
-    setHasSearched(true);
-
     try {
-      const response = await invoke('searchSpaces', {
-        query: searchQuery
-      });
-
+      const response = await invoke('searchSpaces', { query });
       if (response.success) {
         setSpaces(response.spaces || []);
-        if (response.spaces.length === 0) {
+        if ((response.spaces || []).length === 0) {
           setMessage('검색 결과가 없습니다.');
         }
       } else {
@@ -30,12 +28,17 @@ function SpaceSearchPage({ onBack }) {
         setSpaces([]);
       }
     } catch (error) {
-      console.error('Error searching spaces:', error);
       setMessage('스페이스 검색 중 오류가 발생했습니다.');
       setSpaces([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setHasSearched(true);
+    fetchSpaces(searchQuery);
   };
 
   const handleSpaceClick = (space) => {
@@ -51,9 +54,8 @@ function SpaceSearchPage({ onBack }) {
 
   const handleReset = () => {
     setSearchQuery('');
-    setSpaces([]);
-    setMessage('');
     setHasSearched(false);
+    fetchSpaces('');
   };
 
   return (
@@ -74,7 +76,7 @@ function SpaceSearchPage({ onBack }) {
       <div className="space-search-container">
         <div className="search-form-container">
           <form onSubmit={handleSearch} className="space-search-form">
-            <div className="search-input-group">
+            <div className="search-input-group" style={{ position: 'relative' }}>
               <input
                 type="text"
                 value={searchQuery}
@@ -82,6 +84,7 @@ function SpaceSearchPage({ onBack }) {
                 placeholder="스페이스 이름이나 키워드를 입력하세요..."
                 className="search-input"
                 disabled={loading}
+                autoComplete="off"
               />
               <div className="search-actions">
                 <button 
