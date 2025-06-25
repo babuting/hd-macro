@@ -1,6 +1,123 @@
 import Resolver from '@forge/resolver';
+import { storage } from '@forge/api';
 
 const resolver = new Resolver();
+
+// 기본 조직 데이터
+const defaultOrganizationData = [
+  {
+    id: 1,
+    category: '조직',
+    chonggwal: '(C) ICT본부',
+    hyundai: '(H) CEO 직속',
+    kia: '(K) CEO 직속',
+    group: '42dot'
+  },
+  {
+    id: 2,
+    category: '조직',
+    chonggwal: '(C) 통합보안센터',
+    hyundai: '(H) 글로벌사업관리본부',
+    kia: '(K) 글로벌사업관리본부',
+    group: ''
+  },
+  {
+    id: 3,
+    category: '조직',
+    chonggwal: '(C) 기획조정본부',
+    hyundai: '(H) Global Sales and Marketing',
+    kia: '(K) 기업전략실',
+    group: ''
+  },
+  {
+    id: 4,
+    category: '조직',
+    chonggwal: '(C) 미래전략본부',
+    hyundai: '(H) Global DND',
+    kia: '(K) PBV비즈니스사업부',
+    group: ''
+  },
+  {
+    id: 5,
+    category: '조직',
+    chonggwal: '(C) HMG에너지&수소사업본부',
+    hyundai: '(H) 경영지원본부',
+    kia: '(K) 경영지원본부',
+    group: ''
+  },
+  {
+    id: 6,
+    category: '조직',
+    chonggwal: '(C) 기획조정담당 직속',
+    hyundai: '(H) HR본부',
+    kia: '',
+    group: ''
+  },
+  {
+    id: 7,
+    category: '조직',
+    chonggwal: '(C) 정책개발실',
+    hyundai: '(H) 재경본부',
+    kia: '(K) 재경본부',
+    group: ''
+  },
+  {
+    id: 8,
+    category: '조직',
+    chonggwal: '(C) 법무실',
+    hyundai: '(H) Strategy & Governance',
+    kia: '',
+    group: ''
+  },
+  {
+    id: 9,
+    category: '조직',
+    chonggwal: '(C) 전략기획담당',
+    hyundai: '(H) IR담당',
+    kia: '(K) IR/전략투자담당',
+    group: ''
+  },
+  {
+    id: 10,
+    category: '조직',
+    chonggwal: '(C) 인사실',
+    hyundai: '(H) 브랜드마케팅본부',
+    kia: '(K) 고객경험본부',
+    group: ''
+  },
+  {
+    id: 11,
+    category: '조직',
+    chonggwal: '(C) 감사실',
+    hyundai: '(H) 제네시스사업본부',
+    kia: '',
+    group: ''
+  },
+  {
+    id: 12,
+    category: '조직',
+    chonggwal: '(C) 전략기획담당 직속',
+    hyundai: '(H) 글로벌생산&LCV사업본부',
+    kia: '(K) 특수사업부',
+    group: ''
+  },
+  {
+    id: 13,
+    category: '조직',
+    chonggwal: '(C) HMG경영연구원',
+    hyundai: '(H) 글로벌생산운영본부',
+    kia: '',
+    group: ''
+  },
+  {
+    id: 14,
+    category: '조직',
+    chonggwal: '(C) 워성담당 직속',
+    hyundai: '(H) 미주대전역',
+    kia: '(K) 북미지역본부',
+    group: ''
+  }
+];
 
 resolver.define('getText', (req) => {
   console.log(req);
@@ -8,7 +125,6 @@ resolver.define('getText', (req) => {
 });
 
 resolver.define('getNotices', (req) => {
-  // 실제 구현에서는 데이터베이스나 외부 API에서 공지사항을 가져올 수 있습니다
   return {
     notices: [
       {
@@ -25,6 +141,89 @@ resolver.define('getNotices', (req) => {
       }
     ]
   };
+});
+
+// 조직 데이터 가져오기
+resolver.define('getOrganizationData', async (req) => {
+  try {
+    const organizationData = await storage.get('organizationData');
+    
+    if (!organizationData) {
+      // 기본 데이터가 없으면 초기 데이터를 저장하고 반환
+      await storage.set('organizationData', defaultOrganizationData);
+      return { data: defaultOrganizationData };
+    }
+    
+    return { data: organizationData };
+  } catch (error) {
+    console.error('Error fetching organization data:', error);
+    return { data: defaultOrganizationData };
+  }
+});
+
+// 조직 데이터 저장하기
+resolver.define('saveOrganizationData', async (req) => {
+  try {
+    const { data } = req.payload;
+    await storage.set('organizationData', data);
+    return { success: true, message: '조직 데이터가 저장되었습니다.' };
+  } catch (error) {
+    console.error('Error saving organization data:', error);
+    return { success: false, message: '조직 데이터 저장 중 오류가 발생했습니다.' };
+  }
+});
+
+// 조직 데이터 업데이트
+resolver.define('updateOrganizationItem', async (req) => {
+  try {
+    const { id, updatedItem } = req.payload;
+    const organizationData = await storage.get('organizationData') || defaultOrganizationData;
+    
+    const updatedData = organizationData.map(item => 
+      item.id === id ? { ...item, ...updatedItem } : item
+    );
+    
+    await storage.set('organizationData', updatedData);
+    return { success: true, data: updatedData };
+  } catch (error) {
+    console.error('Error updating organization item:', error);
+    return { success: false, message: '조직 데이터 업데이트 중 오류가 발생했습니다.' };
+  }
+});
+
+// 조직 데이터 추가
+resolver.define('addOrganizationItem', async (req) => {
+  try {
+    const { newItem } = req.payload;
+    const organizationData = await storage.get('organizationData') || defaultOrganizationData;
+    
+    const newId = Math.max(...organizationData.map(item => item.id), 0) + 1;
+    const itemWithId = { ...newItem, id: newId };
+    
+    const updatedData = [...organizationData, itemWithId];
+    await storage.set('organizationData', updatedData);
+    
+    return { success: true, data: updatedData };
+  } catch (error) {
+    console.error('Error adding organization item:', error);
+    return { success: false, message: '조직 데이터 추가 중 오류가 발생했습니다.' };
+  }
+});
+
+// 조직 데이터 삭제
+resolver.define('deleteOrganizationItem', async (req) => {
+  try {
+    const { id } = req.payload;
+    const organizationData = await storage.get('organizationData') || defaultOrganizationData;
+    
+    const updatedData = organizationData.filter(item => item.id !== id);
+    await storage.set('organizationData', updatedData);
+    
+    return { success: true, data: updatedData };
+  } catch (error) {
+    console.error('Error deleting organization item:', error);
+    return { success: false, message: '조직 데이터 삭제 중 오류가 발생했습니다.' };
+  }
 });
 
 // Global Settings resolver

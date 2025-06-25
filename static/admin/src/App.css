@@ -6,7 +6,7 @@
 }
 
 .admin-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   background: white;
   border-radius: 16px;
@@ -206,6 +206,188 @@
   box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
+/* Organization Data Management */
+.organization-data-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.organization-data-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 20px 0;
+}
+
+.data-actions {
+  margin-bottom: 20px;
+}
+
+.add-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.organization-admin-table {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.org-admin-header {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 1fr 1fr 120px;
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.org-admin-header > div {
+  padding: 12px 16px;
+  border-right: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.org-admin-header > div:last-child {
+  border-right: none;
+}
+
+.org-admin-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 1fr 1fr 120px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.org-admin-row:hover {
+  background-color: #f8fafc;
+}
+
+.org-admin-row:last-child {
+  border-bottom: none;
+}
+
+.org-admin-row > div {
+  padding: 12px 16px;
+  border-right: 1px solid #f3f4f6;
+  font-size: 0.9rem;
+  align-items: center;
+  display: flex;
+}
+
+.org-admin-row > div:last-child {
+  border-right: none;
+}
+
+.org-edit-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 1fr 1fr 120px;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: #f8fafc;
+}
+
+.org-edit-row input {
+  margin: 8px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.org-edit-row input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn,
+.save-edit-btn,
+.cancel-edit-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #2563eb;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+.save-edit-btn {
+  background: #10b981;
+  color: white;
+}
+
+.save-edit-btn:hover {
+  background: #059669;
+}
+
+.cancel-edit-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.cancel-edit-btn:hover {
+  background: #4b5563;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .admin-app {
@@ -247,5 +429,24 @@
   .reset-btn {
     width: 100%;
     justify-content: center;
+  }
+  
+  .org-admin-header,
+  .org-admin-row,
+  .org-edit-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .org-admin-header > div,
+  .org-admin-row > div {
+    border-right: none;
+    border-bottom: 1px solid #f3f4f6;
+    padding: 8px 16px;
+  }
+  
+  .org-admin-header > div:last-child,
+  .org-admin-row > div:last-child {
+    border-bottom: none;
   }
 }
