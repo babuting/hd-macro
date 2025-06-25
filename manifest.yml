@@ -9,11 +9,16 @@ modules:
   function:
     - key: resolver
       handler: index.handler
+    - key: globalSettingsResolver
+      handler: index.handler
   globalSettings:
     - key: hmg-index-admin
+      resource: admin
+      render: custom-ui
+      resolver:
+        function: globalSettingsResolver
       title: HMG Index Settings
-      url: /admin
-      location: system.admin
+      useAsConfig: true
 resources:
   - key: main
     path: static/hello-world/build

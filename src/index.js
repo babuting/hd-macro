@@ -27,4 +27,13 @@ resolver.define('getNotices', (req) => {
   };
 });
 
+// Global Settings resolver
+resolver.define('globalSettingsResolver', (req) => {
+  console.log('Global settings resolver called:', req);
+  return {
+    message: 'HMG Index Settings loaded successfully',
+    version: '1.1.10'
+  };
+});
+
 export const handler = resolver.getDefinitions();
