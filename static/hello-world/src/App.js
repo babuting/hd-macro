@@ -246,15 +246,19 @@ function App() {
               <div className="col-category">{org.category}</div>
               <div className="col-chonggwal">
                 {org.chonggwal && <a href="#" className="org-link">{org.chonggwal}</a>}
+                }
               </div>
               <div className="col-hyundai">
                 {org.hyundai && <a href="#" className="org-link">{org.hyundai}</a>}
+                }
               </div>
               <div className="col-kia">
                 {org.kia && <a href="#" className="org-link">{org.kia}</a>}
+                }
               </div>
               <div className="col-group">
                 {org.group && <a href="#" className="org-link">{org.group}</a>}
+                }
               </div>
             </div>
           ))}
