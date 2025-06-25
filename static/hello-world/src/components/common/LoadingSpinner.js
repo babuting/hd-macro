@@ -79,6 +79,7 @@ function LoadingSpinner({
         aria-label={message}
       />
       {message && <span className="loading-message">{message}</span>}
+      }
     </div>
   );
 }
