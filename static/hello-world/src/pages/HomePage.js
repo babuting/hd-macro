@@ -1,6 +1,6 @@
 import React from 'react';
 
-function HomePage() {
+function HomePage({ onSpaceSearchClick }) {
   const recentNotices = [
     {
       space: 'COMMONGUIDE',
@@ -44,7 +44,7 @@ function HomePage() {
 
       {/* Action Buttons */}
       <section className="action-buttons">
-        <button className="action-btn">
+        <button className="action-btn" onClick={onSpaceSearchClick}>
           <span className="icon">🔍</span>
           스페이스 검색
         </button>

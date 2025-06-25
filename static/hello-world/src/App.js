@@ -9,6 +9,7 @@ import ProjectsPage from './pages/ProjectsPage';
 import NoticePage from './pages/NoticePage';
 import ServiceRequestPage from './pages/ServiceRequestPage';
 import HelpCenterPage from './pages/HelpCenterPage';
+import SpaceSearchPage from './pages/SpaceSearchPage';
 import './App.css';
 
 function App() {
@@ -23,10 +24,18 @@ function App() {
     setActiveMenu(menuItem);
   };
 
+  const handleSpaceSearchClick = () => {
+    setActiveMenu('SpaceSearch');
+  };
+
+  const handleBackToHome = () => {
+    setActiveMenu('Home');
+  };
+
   const renderContent = () => {
     switch(activeMenu) {
       case 'Home':
-        return <HomePage />;
+        return <HomePage onSpaceSearchClick={handleSpaceSearchClick} />;
       case 'Organization':
         return <OrganizationPage />;
       case 'Projects':
@@ -37,8 +46,10 @@ function App() {
         return <ServiceRequestPage />;
       case 'Help Center':
         return <HelpCenterPage />;
+      case 'SpaceSearch':
+        return <SpaceSearchPage onBack={handleBackToHome} />;
       default:
-        return <HomePage />;
+        return <HomePage onSpaceSearchClick={handleSpaceSearchClick} />;
     }
   };
 

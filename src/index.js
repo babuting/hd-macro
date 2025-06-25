@@ -289,6 +289,81 @@ resolver.define('createServiceDeskRequest', async (req) => {
   }
 });
 
+// 스페이스 검색
+resolver.define('searchSpaces', async (req) => {
+  try {
+    const { query } = req.payload;
+    
+    console.log('Searching spaces with query:', query);
+    
+    let searchUrl = '/rest/api/space';
+    
+    // 검색어가 있으면 필터링 파라미터 추가
+    if (query && query.trim()) {
+      // Confluence API는 spaceKey나 name으로 필터링 가능
+      searchUrl += `?label=${encodeURIComponent(query.trim())}`;
+    }
+    
+    const response = await api.asUser().requestConfluence(
+      route`${searchUrl}`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        }
+      }
+    );
+
+    console.log('Confluence API Response Status:', response.status);
+
+    if (response.status === 200) {
+      const responseData = await response.json();
+      console.log('Success response data:', responseData);
+      
+      // 검색어가 있으면 클라이언트 사이드에서 추가 필터링
+      let spaces = responseData.results || [];
+      
+      if (query && query.trim()) {
+        const searchTerm = query.trim().toLowerCase();
+        spaces = spaces.filter(space => 
+          space.name.toLowerCase().includes(searchTerm) ||
+          space.key.toLowerCase().includes(searchTerm) ||
+          (space.description && space.description.toLowerCase().includes(searchTerm))
+        );
+      }
+      
+      return {
+        success: true,
+        spaces: spaces.map(space => ({
+          id: space.id,
+          key: space.key,
+          name: space.name,
+          description: space.description || '',
+          type: space.type,
+          status: space.status,
+          _links: space._links
+        }))
+      };
+    } else {
+      const errorData = await response.text();
+      console.error('Confluence API Error Response:', errorData);
+      
+      return {
+        success: false,
+        message: `스페이스 검색 실패: ${response.status} ${response.statusText}`,
+        details: errorData
+      };
+    }
+
+  } catch (error) {
+    console.error('Error searching spaces:', error);
+    return {
+      success: false,
+      message: '스페이스 검색 중 오류가 발생했습니다: ' + error.message
+    };
+  }
+});
+
 // Global Settings resolver
 resolver.define('globalSettingsResolver', (req) => {
   console.log('Global settings resolver called:', req);
