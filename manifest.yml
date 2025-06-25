@@ -26,3 +26,6 @@ app:
     memoryMB: 256
     architecture: arm64
   id: ari:cloud:ecosystem::app/2767bcda-2f30-4d3e-b417-200897de0a20
+permissions:
+  scopes:
+    - storage:app
