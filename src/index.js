@@ -236,8 +236,8 @@ resolver.define('createServiceDeskRequest', async (req) => {
     
     // Jira Service Desk API 호출
     const requestBody = {
-      serviceDeskId: 1, // 실제 Service Desk ID로 변경 필요
-      requestTypeId: 1, // 실제 Request Type ID로 변경 필요
+      serviceDeskId: 33, // 실제 Service Desk ID로 변경 필요
+      requestTypeId: 279, // 실제 Request Type ID로 변경 필요
       requestFieldValues: {
         summary: title,
         description: {
