@@ -230,18 +230,19 @@ resolver.define('deleteOrganizationItem', async (req) => {
 // Service Desk 요청 생성
 resolver.define('createServiceDeskRequest', async (req) => {
   try {
-    const { title, content } = req.payload;
+    const { title, content, accountId } = req.payload;
     
-    console.log('Creating service desk request:', { title, content });
+    console.log('Creating service desk request:', { title, content, accountId });
     
-    // Service Desk API 요청 본문 구성
+    // JSM 공식 명세에 맞는 요청 본문
     const requestBody = {
       serviceDeskId: "33",
       requestTypeId: "279",
       requestFieldValues: {
         summary: title,
         description: content
-      }
+      },
+      // 'reporter' 필드는 명세에 없음. 대신, asUser()로 호출 시 현재 사용자로 생성됨
     };
 
     console.log('Request body:', JSON.stringify(requestBody, null, 2));

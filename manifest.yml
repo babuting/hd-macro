@@ -17,6 +17,14 @@ modules:
       title: HMG Index 글로벌
       route: hmg-index-global
       icon: https://www.example.com/icon.png
+  jira:globalPage:
+    - key: hmg-index-jira-global-page
+      resource: admin
+      resolver:
+        function: resolver
+      title: HMG Index (Jira)
+      route: hmg-index-jira
+      icon: https://www.example.com/icon.png
 resources:
   - key: main
     path: static/hello-world/build
