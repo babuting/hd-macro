@@ -12,6 +12,8 @@ modules:
   confluence:globalPage:
     - key: hmg-index-global-page
       resource: admin
+      resolver:
+        function: resolver
       title: HMG Index 글로벌
       route: hmg-index-global
       icon: https://www.example.com/icon.png
