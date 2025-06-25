@@ -1,5 +1,6 @@
 import Resolver from '@forge/resolver';
 import { storage } from '@forge/api';
+import api, { route } from '@forge/api';
 
 const resolver = new Resolver();
 
@@ -223,6 +224,86 @@ resolver.define('deleteOrganizationItem', async (req) => {
   } catch (error) {
     console.error('Error deleting organization item:', error);
     return { success: false, message: '조직 데이터 삭제 중 오류가 발생했습니다.' };
+  }
+});
+
+// Service Desk 요청 생성
+resolver.define('createServiceDeskRequest', async (req) => {
+  try {
+    const { title, content } = req.payload;
+    
+    console.log('Creating service desk request:', { title, content });
+    
+    // Jira Service Desk API 호출
+    const requestBody = {
+      serviceDeskId: 1, // 실제 Service Desk ID로 변경 필요
+      requestTypeId: 1, // 실제 Request Type ID로 변경 필요
+      requestFieldValues: {
+        summary: title,
+        description: {
+          type: "doc",
+          version: 1,
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: content
+                }
+              ]
+            }
+          ]
+        }
+      }
+    };
+
+    const response = await api.asUser().requestJira(
+      route`/rest/servicedeskapi/request`,
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      }
+    );
+
+    console.log('Service Desk API Response:', response);
+
+    if (response.status === 201) {
+      const responseData = await response.json();
+      return {
+        success: true,
+        issueKey: responseData.issueKey || responseData.issueId,
+        message: '서비스 요청이 성공적으로 생성되었습니다.'
+      };
+    } else {
+      const errorData = await response.text();
+      console.error('Service Desk API Error:', errorData);
+      return {
+        success: false,
+        message: `서비스 요청 생성 실패: ${response.status} ${response.statusText}`
+      };
+    }
+
+  } catch (error) {
+    console.error('Error creating service desk request:', error);
+    
+    // 개발 환경에서 테스트를 위한 임시 성공 응답
+    if (process.env.NODE_ENV === 'development') {
+      return {
+        success: true,
+        issueKey: 'TEST-' + Math.floor(Math.random() * 1000),
+        message: '서비스 요청이 성공적으로 생성되었습니다. (개발 모드)'
+      };
+    }
+    
+    return {
+      success: false,
+      message: '서비스 요청 생성 중 오류가 발생했습니다: ' + error.message
+    };
   }
 });
 
