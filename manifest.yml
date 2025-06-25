@@ -9,16 +9,12 @@ modules:
   function:
     - key: resolver
       handler: index.handler
-    - key: globalSettingsResolver
-      handler: index.handler
-  globalSettings:
-    - key: hmg-index-admin
+  confluence:globalPage:
+    - key: hmg-index-global-page
       resource: admin
-      render: custom-ui
-      resolver:
-        function: globalSettingsResolver
-      title: HMG Index Settings
-      useAsConfig: true
+      title: HMG Index 글로벌
+      route: hmg-index-global
+      icon: https://www.example.com/icon.png
 resources:
   - key: main
     path: static/hello-world/build
