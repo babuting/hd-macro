@@ -217,7 +217,13 @@
   font-size: 1.3rem;
   font-weight: 600;
   color: #1f2937;
+  margin: 0 0 10px 0;
+}
+
+.organization-data-section p {
+  color: #6b7280;
   margin: 0 0 20px 0;
+  font-size: 0.95rem;
 }
 
 .data-actions {
@@ -250,6 +256,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
+  background: white;
 }
 
 .org-admin-header {
@@ -276,6 +283,7 @@
   grid-template-columns: 100px 1fr 1fr 1fr 1fr 120px;
   border-bottom: 1px solid #f3f4f6;
   transition: background-color 0.2s ease;
+  min-height: 50px;
 }
 
 .org-admin-row:hover {
@@ -292,6 +300,7 @@
   font-size: 0.9rem;
   align-items: center;
   display: flex;
+  word-break: break-word;
 }
 
 .org-admin-row > div:last-child {
@@ -303,14 +312,17 @@
   grid-template-columns: 100px 1fr 1fr 1fr 1fr 120px;
   border-bottom: 1px solid #f3f4f6;
   background-color: #f8fafc;
+  padding: 8px 0;
 }
 
 .org-edit-row input {
-  margin: 8px;
+  margin: 4px 8px;
   padding: 8px 12px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 0.9rem;
+  width: calc(100% - 16px);
+  box-sizing: border-box;
 }
 
 .org-edit-row input:focus {
@@ -322,6 +334,8 @@
 .row-actions {
   display: flex;
   gap: 8px;
+  justify-content: center;
+  align-items: center;
 }
 
 .edit-btn,
@@ -335,6 +349,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .edit-btn {
@@ -435,7 +450,7 @@
   .org-admin-row,
   .org-edit-row {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 0;
   }
   
   .org-admin-header > div,
@@ -448,5 +463,15 @@
   .org-admin-header > div:last-child,
   .org-admin-row > div:last-child {
     border-bottom: none;
+  }
+  
+  .org-edit-row {
+    display: block;
+    padding: 16px;
+  }
+  
+  .org-edit-row input {
+    width: 100%;
+    margin: 8px 0;
   }
 }

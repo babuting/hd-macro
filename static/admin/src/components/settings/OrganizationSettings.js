@@ -22,6 +22,7 @@ function OrganizationSettings({ settings, onUpdate }) {
     try {
       setLoading(true);
       const response = await invoke('getOrganizationData');
+      console.log('Loaded organization data:', response);
       setOrganizationData(response.data || []);
     } catch (error) {
       console.error('Error loading organization data:', error);
@@ -48,6 +49,7 @@ function OrganizationSettings({ settings, onUpdate }) {
       if (response.success) {
         setOrganizationData(response.data);
         setEditingItem(null);
+        console.log('Item updated successfully');
       }
     } catch (error) {
       console.error('Error updating organization item:', error);
@@ -74,6 +76,7 @@ function OrganizationSettings({ settings, onUpdate }) {
           group: ''
         });
         setShowAddForm(false);
+        console.log('Item added successfully');
       }
     } catch (error) {
       console.error('Error adding organization item:', error);
@@ -87,6 +90,7 @@ function OrganizationSettings({ settings, onUpdate }) {
         
         if (response.success) {
           setOrganizationData(response.data);
+          console.log('Item deleted successfully');
         }
       } catch (error) {
         console.error('Error deleting organization item:', error);
@@ -104,25 +108,25 @@ function OrganizationSettings({ settings, onUpdate }) {
       />
       <input
         type="text"
-        value={item.chonggwal}
+        value={item.chonggwal || ''}
         onChange={(e) => setEditingItem({ ...item, chonggwal: e.target.value })}
         placeholder="총괄"
       />
       <input
         type="text"
-        value={item.hyundai}
+        value={item.hyundai || ''}
         onChange={(e) => setEditingItem({ ...item, hyundai: e.target.value })}
         placeholder="현대"
       />
       <input
         type="text"
-        value={item.kia}
+        value={item.kia || ''}
         onChange={(e) => setEditingItem({ ...item, kia: e.target.value })}
         placeholder="기아"
       />
       <input
         type="text"
-        value={item.group}
+        value={item.group || ''}
         onChange={(e) => setEditingItem({ ...item, group: e.target.value })}
         placeholder="그룹사"
       />
@@ -218,6 +222,7 @@ function OrganizationSettings({ settings, onUpdate }) {
 
       <div className="organization-data-section">
         <h3>조직 데이터 관리</h3>
+        <p>현재 매크로에서 표시되는 조직 정보를 관리할 수 있습니다.</p>
         
         <div className="data-actions">
           <button 
@@ -241,35 +246,43 @@ function OrganizationSettings({ settings, onUpdate }) {
           
           {showAddForm && renderAddForm()}
           
-          {organizationData.map((org) => (
-            <div key={org.id}>
-              {editingItem && editingItem.id === org.id ? (
-                renderEditForm(editingItem)
-              ) : (
-                <div className="org-admin-row">
-                  <div>{org.category}</div>
-                  <div>{org.chonggwal}</div>
-                  <div>{org.hyundai}</div>
-                  <div>{org.kia}</div>
-                  <div>{org.group}</div>
-                  <div className="row-actions">
-                    <button 
-                      className="edit-btn"
-                      onClick={() => handleEdit(org)}
-                    >
-                      편집
-                    </button>
-                    <button 
-                      className="delete-btn"
-                      onClick={() => handleDelete(org.id)}
-                    >
-                      삭제
-                    </button>
-                  </div>
-                </div>
-              )}
+          {organizationData.length === 0 ? (
+            <div className="org-admin-row">
+              <div colSpan="6" style={{textAlign: 'center', padding: '20px', color: '#6b7280'}}>
+                조직 데이터가 없습니다.
+              </div>
             </div>
-          ))}
+          ) : (
+            organizationData.map((org) => (
+              <div key={org.id}>
+                {editingItem && editingItem.id === org.id ? (
+                  renderEditForm(editingItem)
+                ) : (
+                  <div className="org-admin-row">
+                    <div>{org.category}</div>
+                    <div>{org.chonggwal || '-'}</div>
+                    <div>{org.hyundai || '-'}</div>
+                    <div>{org.kia || '-'}</div>
+                    <div>{org.group || '-'}</div>
+                    <div className="row-actions">
+                      <button 
+                        className="edit-btn"
+                        onClick={() => handleEdit(org)}
+                      >
+                        편집
+                      </button>
+                      <button 
+                        className="delete-btn"
+                        onClick={() => handleDelete(org.id)}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
