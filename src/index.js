@@ -227,36 +227,108 @@ resolver.define('deleteOrganizationItem', async (req) => {
   }
 });
 
-// Service Desk 요청 생성
-resolver.define('createServiceDeskRequest', async (req) => {
+// Service Desk 정보 조회
+resolver.define('getServiceDeskInfo', async (req) => {
   try {
-    const { title, content } = req.payload;
+    console.log('Getting Service Desk information...');
     
-    console.log('Creating service desk request:', { title, content });
-    
-    // Jira Service Desk API 호출
-    const requestBody = {
-      serviceDeskId: 33, // 실제 Service Desk ID로 변경 필요
-      requestTypeId: 279, // 실제 Request Type ID로 변경 필요
-      requestFieldValues: {
-        summary: title,
-        description: {
-          type: "doc",
-          version: 1,
-          content: [
-            {
-              type: "paragraph",
-              content: [
-                {
-                  type: "text",
-                  text: content
-                }
-              ]
-            }
-          ]
+    // 먼저 접근 가능한 Service Desk 목록을 조회
+    const response = await api.asUser().requestJira(
+      route`/rest/servicedeskapi/servicedesk`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
         }
       }
+    );
+
+    console.log('Service Desk List Response Status:', response.status);
+    
+    if (response.status === 200) {
+      const data = await response.json();
+      console.log('Available Service Desks:', data);
+      return {
+        success: true,
+        serviceDesks: data.values || []
+      };
+    } else {
+      const errorText = await response.text();
+      console.error('Service Desk List Error:', errorText);
+      return {
+        success: false,
+        message: `Service Desk 목록 조회 실패: ${response.status} ${response.statusText}`
+      };
+    }
+  } catch (error) {
+    console.error('Error getting service desk info:', error);
+    return {
+      success: false,
+      message: 'Service Desk 정보 조회 중 오류가 발생했습니다: ' + error.message
     };
+  }
+});
+
+// Request Types 조회
+resolver.define('getRequestTypes', async (req) => {
+  try {
+    const { serviceDeskId } = req.payload;
+    console.log(`Getting request types for Service Desk ${serviceDeskId}...`);
+    
+    const response = await api.asUser().requestJira(
+      route`/rest/servicedeskapi/servicedesk/${serviceDeskId}/requesttype`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        }
+      }
+    );
+
+    console.log('Request Types Response Status:', response.status);
+    
+    if (response.status === 200) {
+      const data = await response.json();
+      console.log('Available Request Types:', data);
+      return {
+        success: true,
+        requestTypes: data.values || []
+      };
+    } else {
+      const errorText = await response.text();
+      console.error('Request Types Error:', errorText);
+      return {
+        success: false,
+        message: `Request Type 목록 조회 실패: ${response.status} ${response.statusText}`
+      };
+    }
+  } catch (error) {
+    console.error('Error getting request types:', error);
+    return {
+      success: false,
+      message: 'Request Type 정보 조회 중 오류가 발생했습니다: ' + error.message
+    };
+  }
+});
+
+// Service Desk 요청 생성 (개선된 버전)
+resolver.define('createServiceDeskRequest', async (req) => {
+  try {
+    const { title, content, serviceDeskId, requestTypeId } = req.payload;
+    
+    console.log('Creating service desk request:', { title, content, serviceDeskId, requestTypeId });
+    
+    // 요청 본문을 Jira의 요구사항에 맞게 구성
+    const requestBody = {
+      serviceDeskId: parseInt(serviceDeskId) || 1, // 기본값 또는 사용자 입력값
+      requestTypeId: parseInt(requestTypeId) || 1, // 기본값 또는 사용자 입력값
+      requestFieldValues: {
+        summary: title,
+        description: content // 단순 텍스트로 시작
+      }
+    };
+
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
     const response = await api.asUser().requestJira(
       route`/rest/servicedeskapi/request`,
@@ -270,10 +342,12 @@ resolver.define('createServiceDeskRequest', async (req) => {
       }
     );
 
-    console.log('Service Desk API Response:', response);
+    console.log('Service Desk API Response Status:', response.status);
+    console.log('Response headers:', response.headers);
 
     if (response.status === 201) {
       const responseData = await response.json();
+      console.log('Success response data:', responseData);
       return {
         success: true,
         issueKey: responseData.issueKey || responseData.issueId,
@@ -281,28 +355,64 @@ resolver.define('createServiceDeskRequest', async (req) => {
       };
     } else {
       const errorData = await response.text();
-      console.error('Service Desk API Error:', errorData);
+      console.error('Service Desk API Error Response:', errorData);
+      
+      // 403 에러의 경우 더 자세한 정보 제공
+      if (response.status === 403) {
+        return {
+          success: false,
+          message: `접근 권한이 없습니다. Service Desk ID(${serviceDeskId})나 Request Type ID(${requestTypeId})를 확인해주세요.`,
+          details: errorData
+        };
+      }
+      
       return {
         success: false,
-        message: `서비스 요청 생성 실패: ${response.status} ${response.statusText}`
+        message: `서비스 요청 생성 실패: ${response.status} ${response.statusText}`,
+        details: errorData
       };
     }
 
   } catch (error) {
     console.error('Error creating service desk request:', error);
-    
-    // 개발 환경에서 테스트를 위한 임시 성공 응답
-    if (process.env.NODE_ENV === 'development') {
-      return {
-        success: true,
-        issueKey: 'TEST-' + Math.floor(Math.random() * 1000),
-        message: '서비스 요청이 성공적으로 생성되었습니다. (개발 모드)'
-      };
-    }
-    
     return {
       success: false,
       message: '서비스 요청 생성 중 오류가 발생했습니다: ' + error.message
+    };
+  }
+});
+
+// 현재 사용자 정보 조회
+resolver.define('getCurrentUser', async (req) => {
+  try {
+    const response = await api.asUser().requestJira(
+      route`/rest/api/3/myself`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        }
+      }
+    );
+
+    if (response.status === 200) {
+      const userData = await response.json();
+      console.log('Current user:', userData);
+      return {
+        success: true,
+        user: userData
+      };
+    } else {
+      return {
+        success: false,
+        message: `사용자 정보 조회 실패: ${response.status}`
+      };
+    }
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return {
+      success: false,
+      message: '사용자 정보 조회 중 오류가 발생했습니다: ' + error.message
     };
   }
 });
